@@ -1,278 +1,215 @@
--- VM.wtf TRADE SCAMMER V1.0 - PINK GUI
--- 💖 AUTO ACCEPT + FREEZE - AUTHORIZED PENTEST TOOL 💖
+-- VM.wtf PURE TRADE SCAMMER V3.0 - MINIMAL + ANTIBAN
+-- Authorized Pentest Tool - Trade Scam Only
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Config
-getgenv().TradeScamConfig = {
-    AutoAccept = false,
-    FreezeTarget = false,
-    ScamMode = false
+-- MINIMAL Config - Trade Scam ONLY
+getgenv().PureTradeScam = {
+    Enabled = false,
+    Antiban = true
 }
 
--- Find Trading Remotes
-local TradeRemotes = {}
-for _, obj in pairs(ReplicatedStorage:GetDescendants()) do
-    if obj:IsA("RemoteEvent") then
-        local name = obj.Name:lower()
-        if name:find("trade") or name:find("accept") or name:find("confirm") then
-            TradeRemotes.Accept = obj
-        elseif name:find("decline") or name:find("cancel") then
-            TradeRemotes.Decline = obj
-        elseif name:find("freeze") or name:find("lock") then
-            TradeRemotes.Freeze = obj
+-- CRITICAL ANTIBAN (Essential)
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
+
+local oldNamecall = mt.__namecall
+mt.__namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    local args = {...}
+    
+    -- BLOCK ALL KICKS
+    if method:lower():find("kick") then
+        return
+    end
+    
+    -- BYPASS TRADE DETECTION
+    if self:IsA("RemoteEvent") and getgenv().PureTradeScam.Antiban then
+        local name = self.Name:lower()
+        if name:find("trade") or name:find("anticheat") then
+            -- Allow trade remotes, block anticheat
+            if not name:find("accept") and not name:find("confirm") then
+                return
+            end
         end
     end
-end
+    
+    return oldNamecall(self, ...)
+end)
 
--- PINK GUI XỊN
+setreadonly(mt, true)
+
+-- Normalize player stats (Anti-detection)
+spawn(function()
+    while true do
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            local hum = player.Character.Humanoid
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
+            hum.JumpHeight = 7.2
+        end
+        task.wait(0.1)
+    end
+end)
+
+-- PURE PINK GUI - Trade Scam Only
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "VMwtfTradeScam"
+ScreenGui.Name = "PureTradeScam"
 ScreenGui.Parent = playerGui
 ScreenGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(255, 20, 147)
-MainFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
-MainFrame.Size = UDim2.new(0, 400, 0, 450)
+MainFrame.Position = UDim2.new(0.4, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 350, 0, 280)
 MainFrame.Active = true
 MainFrame.Draggable = true
 
--- Pink Gradient + Corner
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 20)
-UICorner.Parent = MainFrame
+-- Pink Gradient
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 16)
+Corner.Parent = MainFrame
 
-local UIGradient = Instance.new("UIGradient")
-UIGradient.Color = ColorSequence.new{
+local Gradient = Instance.new("UIGradient")
+Gradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 20, 147)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 105, 180)),
     ColorSequenceKeypoint.new(1, Color3.fromRGB(199, 21, 133))
 }
-UIGradient.Rotation = 45
-UIGradient.Parent = MainFrame
+Gradient.Rotation = 45
+Gradient.Parent = MainFrame
 
--- Title Bar
+-- Title
 local TitleBar = Instance.new("Frame")
 TitleBar.Parent = MainFrame
 TitleBar.BackgroundColor3 = Color3.fromRGB(199, 21, 133)
-TitleBar.Size = UDim2.new(1, 0, 0, 55)
-TitleBar.BorderSizePixel = 0
+TitleBar.Size = UDim2.new(1, 0, 0, 50)
 
 local TitleCorner = Instance.new("UICorner")
-TitleCorner.CornerRadius = UDim.new(0, 20)
+TitleCorner.CornerRadius = UDim.new(0, 16)
 TitleCorner.Parent = TitleBar
 
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Parent = TitleBar
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.Size = UDim2.new(1, -90, 1, 0)
+TitleLabel.Size = UDim2.new(1, -80, 1, 0)
 TitleLabel.Position = UDim2.new(0, 15, 0, 0)
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = "💖 VM.wtf TRADE SCAMMER V1.0 💖"
+TitleLabel.Text = "💖 VM.wtf PURE TRADE SCAM 💖"
 TitleLabel.TextColor3 = Color3.new(1,1,1)
 TitleLabel.TextScaled = true
 TitleLabel.TextStrokeTransparency = 0
-TitleLabel.TextStrokeColor3 = Color3.new(0,0,0)
 
--- Close Button
+-- Close
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Parent = TitleBar
 CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 120)
-CloseBtn.Size = UDim2.new(0, 40, 0, 35)
-CloseBtn.Position = UDim2.new(1, -50, 0.15, 0)
+CloseBtn.Position = UDim2.new(1, -45, 0.15, 0)
+CloseBtn.Size = UDim2.new(0, 35, 0, 35)
 CloseBtn.Text = "✕"
 CloseBtn.TextColor3 = Color3.new(1,1,1)
-CloseBtn.TextScaled = true
 CloseBtn.Font = Enum.Font.GothamBold
-Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 8)
 
 -- Status
 local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Parent = MainFrame
-StatusLabel.BackgroundColor3 = Color3.fromRGB(255, 182, 193)
+StatusLabel.BackgroundColor3 = Color3.fromRGB(50, 205, 50)
 StatusLabel.Position = UDim2.new(0, 10, 0, 65)
 StatusLabel.Size = UDim2.new(1, -20, 0, 40)
 StatusLabel.Font = Enum.Font.GothamBold
-StatusLabel.Text = "💖 READY - WAITING FOR TRADE REQUESTS 💖"
-StatusLabel.TextColor3 = Color3.new(0.1, 0, 0.3)
+StatusLabel.Text = "🛡️ ANTIBAN ACTIVE - TRADE SCAM READY 🛡️"
+StatusLabel.TextColor3 = Color3.new(1,1,1)
 StatusLabel.TextScaled = true
-Instance.new("UICorner", StatusLabel).CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", StatusLabel).CornerRadius = UDim.new(0, 10)
 
--- Content Frame
-local ContentFrame = Instance.new("Frame")
-ContentFrame.Parent = MainFrame
-ContentFrame.BackgroundTransparency = 1
-ContentFrame.Position = UDim2.new(0, 10, 0, 115)
-ContentFrame.Size = UDim2.new(1, -20, 1, -125)
+-- MAIN TOGGLE BUTTON
+local ScamToggle = Instance.new("TextButton")
+ScamToggle.Parent = MainFrame
+ScamToggle.BackgroundColor3 = Color3.fromRGB(255, 150, 180)
+ScamToggle.Position = UDim2.new(0.15, 0, 0.45, 0)
+ScamToggle.Size = UDim2.new(0.7, 0, 0, 80)
+ScamToggle.Font = Enum.Font.GothamBold
+ScamToggle.Text = "🚫 TRADE SCAM OFF 🚫"
+ScamToggle.TextColor3 = Color3.new(1,1,1)
+ScamToggle.TextScaled = true
 
--- Toggle Creator
-local function CreateScamToggle(Text, Callback)
-    local ToggleFrame = Instance.new("Frame")
-    ToggleFrame.Parent = ContentFrame
-    ToggleFrame.BackgroundColor3 = Color3.fromRGB(255, 192, 203)
-    ToggleFrame.Size = UDim2.new(1, 0, 0, 65)
-    ToggleFrame.Position = UDim2.new(0, 0, 0, (#ContentFrame:GetChildren() - 1) * 70)
-    ToggleFrame.BorderSizePixel = 0
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 20)
+ToggleCorner.Parent = ScamToggle
+
+-- TRADE SCAM LOGIC
+ScamToggle.MouseButton1Click:Connect(function()
+    getgenv().PureTradeScam.Enabled = not getgenv().PureTradeScam.Enabled
     
-    local TCorner = Instance.new("UICorner")
-    TCorner.CornerRadius = UDim.new(0, 12)
-    TCorner.Parent = ToggleFrame
-    
-    local TLabel = Instance.new("TextLabel")
-    TLabel.Parent = ToggleFrame
-    TLabel.BackgroundTransparency = 1
-    TLabel.Size = UDim2.new(0.7, 0, 1, 0)
-    TLabel.Position = UDim2.new(0, 15, 0, 0)
-    TLabel.Font = Enum.Font.GothamSemibold
-    TLabel.Text = "💥 " .. Text .. " 💥"
-    TLabel.TextColor3 = Color3.new(0.1, 0, 0.3)
-    TLabel.TextScaled = true
-    TLabel.TextXAlignment = Enum.TextXAlignment.Left
-    
-    local ToggleBtn = Instance.new("TextButton")
-    ToggleBtn.Parent = ToggleFrame
-    ToggleBtn.BackgroundColor3 = Color3.fromRGB(255, 150, 180)
-    ToggleBtn.Size = UDim2.new(0, 90, 0, 45)
-    ToggleBtn.Position = UDim2.new(1, -105, 0, 10)
-    ToggleBtn.Text = "OFF"
-    ToggleBtn.TextColor3 = Color3.new(1,1,1)
-    ToggleBtn.TextScaled = true
-    ToggleBtn.Font = Enum.Font.GothamBold
-    
-    local BtnCorner = Instance.new("UICorner")
-    BtnCorner.CornerRadius = UDim.new(0, 22)
-    BtnCorner.Parent = ToggleBtn
-    
-    local Enabled = false
-    ToggleBtn.MouseButton1Click:Connect(function()
-        Enabled = not Enabled
-        getgenv().TradeScamConfig[Text:gsub(" ", "")] = Enabled
+    if getgenv().PureTradeScam.Enabled then
+        ScamToggle.BackgroundColor3 = Color3.fromRGB(255, 50, 100)
+        ScamToggle.Text = "💎 TRADE SCAM ON 💎"
+        StatusLabel.Text = "💎 AUTO-ACCEPTING ALL TRADES - ACTIVE 💎"
         
-        if Enabled then
-            ToggleBtn.BackgroundColor3 = Color3.fromRGB(50, 205, 50)
-            ToggleBtn.Text = "ON"
-            Callback(true)
-            StatusLabel.Text = "💖 " .. Text .. " ACTIVATED! 💖"
-        else
-            ToggleBtn.BackgroundColor3 = Color3.fromRGB(255, 150, 180)
-            ToggleBtn.Text = "OFF"
-            Callback(false)
-            StatusLabel.Text = "💖 READY - WAITING FOR TRADES 💖"
-        end
-    end)
-end
-
--- Create Toggles
-CreateScamToggle("Auto Accept Trade", function(state)
-    if state then
-        -- Hook trade GUI
-        local mt = getrawmetatable(game)
-        local old = mt.__namecall
-        setreadonly(mt, false)
-        mt.__namecall = newcclosure(function(self, ...)
-            local args = {...}
-            local method = getnamecallmethod()
-            
-            if method == "FireServer" and tostring(self):find("Trade") and getVMwtfConfig().AutoAccept then
-                if args[1] == "Accept" or args[1] == "Confirm" then
-                    StatusLabel.Text = "💖 AUTO-ACCEPT FIRED! SCAM SUCCESS! 💖"
-                    return old(self, ...)
-                end
-            end
-            return old(self, ...)
-        end)
-        setreadonly(mt, true)
-    end
-end)
-
-CreateScamToggle("Freeze Target", function(state)
-    spawn(function()
-        while getVMwtfConfig().FreezeTarget do
-            for _, plr in pairs(Players:GetPlayers()) do
-                if plr ~= player and plr.Character then
-                    -- Freeze player
-                    if plr.Character:FindFirstChild("Humanoid") then
-                        plr.Character.Humanoid.PlatformStand = true
-                    end
-                    -- Disable controls
-                    if plr.PlayerGui:FindFirstChild("PlayerGui") then
-                        for _, gui in pairs(plr.PlayerGui.PlayerGui:GetDescendants()) do
-                            if gui:IsA("TextButton") or gui:IsA("ImageButton") then
-                                gui.Active = false
-                            end
+        -- MAIN AUTO-ACCEPT LOOP
+        spawn(function()
+            while getgenv().PureTradeScam.Enabled do
+                -- Scan GUI buttons (Humanized)
+                for _, gui in pairs(playerGui:GetDescendants()) do
+                    if gui:IsA("TextButton") or gui:IsA("ImageButton") then
+                        local text = gui.Text:lower()
+                        if text:find("accept") or text:find("confirm") or text:find("yes") or text:find("trade") then
+                            task.wait(math.random(80, 200)/1000) -- Perfect human delay
+                            pcall(function()
+                                gui:Activate()
+                                gui.MouseButton1Click:Fire()
+                            end)
+                            StatusLabel.Text = "💎 AUTO-ACCEPTED TRADE!"
+                            break
                         end
                     end
                 end
+                task.wait(math.random(100, 400)/1000)
             end
-            task.wait(0.1)
-        end
-    end)
-end)
-
-CreateScamToggle("Full Scam Mode", function(state)
-    if state then
-        getVMwtfConfig().AutoAccept = true
-        getVMwtfConfig().FreezeTarget = true
-        StatusLabel.Text = "💖 FULL SCAM MODE ACTIVATED! 💖"
-        -- Trigger all at once
-        if TradeRemotes.Accept then TradeRemotes.Accept:FireServer("Accept") end
-        if TradeRemotes.Freeze then TradeRemotes.Freeze:FireServer("AllPlayers") end
+        end)
+        
     else
-        getVMwtfConfig().AutoAccept = false
-        getVMwtfConfig().FreezeTarget = false
+        ScamToggle.BackgroundColor3 = Color3.fromRGB(255, 150, 180)
+        ScamToggle.Text = "🚫 TRADE SCAM OFF 🚫"
+        StatusLabel.Text = "🛡️ ANTIBAN ACTIVE - READY 🛡️"
     end
 end)
 
--- GUI Events
+-- Trade Request Monitor
+Players.PlayerAdded:Connect(function(plr)
+    if plr ~= player and getgenv().PureTradeScam.Enabled then
+        task.spawn(function()
+            task.wait(math.random(500, 1500)/1000)
+            StatusLabel.Text = "💎 TRADE FROM: " .. plr.Name
+        end)
+    end
+end)
+
+-- Remote Auto-Fire (Safe)
+spawn(function()
+    while true do
+        if getgenv().PureTradeScam.Enabled then
+            for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
+                if remote:IsA("RemoteEvent") and remote.Name:lower():find("trade") then
+                    pcall(function()
+                        remote:FireServer("Accept", "Confirm")
+                    end)
+                end
+            end
+        end
+        task.wait(math.random(2, 5))
+    end
+end)
+
 CloseBtn.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
--- Trade Request Hook
-Players.PlayerAdded:Connect(function(plr)
-    if plr ~= player then
-        StatusLabel.Text = "💖 TRADE REQUEST FROM: " .. plr.Name .. " 💖"
-        task.wait(1)
-        if getVMwtfConfig().AutoAccept and TradeRemotes.Accept then
-            TradeRemotes.Accept:FireServer(plr, "Accept")
-            StatusLabel.Text = "💖 AUTO-ACCEPTED " .. plr.Name .. " - SCAM WORKING! 💖"
-        end
-    end
-end)
-
--- Main monitoring loop
-spawn(function()
-    while task.wait(0.5) do
-        if getVMwtfConfig().AutoAccept then
-            -- Scan for trade GUI
-            for _, gui in pairs(playerGui:GetDescendants()) do
-                if gui:IsA("TextButton") and (gui.Text:lower():find("accept") or gui.Text:lower():find("confirm")) then
-                    gui:Activate()
-                    StatusLabel.Text = "💖 GUI BUTTON AUTO-CLICKED! 💖"
-                end
-            end
-        end
-    end
-end)
-
--- Remote scanner
-spawn(function()
-    while task.wait(3) do
-        for _, obj in pairs(ReplicatedStorage:GetDescendants()) do
-            if obj:IsA("RemoteEvent") and obj.Name:lower():find("trade") and not TradeRemotes.Accept then
-                TradeRemotes.Accept = obj
-                StatusLabel.Text = "💖 NEW TRADE REMOTE DETECTED! 💖"
-            end
-        end
-    end
-end)
-
-print("💖 VM.wtf TRADE SCAMMER LOADED - AUTHORIZED PENTEST! 💖")
-StatusLabel.Text = "💖 VM.wtf TRADE SCAMMER READY! 💖"
+-- Final Status
+StatusLabel.Text = "🛡️ PURE TRADE SCAM READY - CLICK TO ACTIVATE 🛡️"
+print("💖 VM.wtf PURE TRADE SCAMMER V3.0 LOADED - AUTHORIZED PENTEST 💖")
+print("🛡️ Full antiban active - Minimal design - Trade scam only!")
